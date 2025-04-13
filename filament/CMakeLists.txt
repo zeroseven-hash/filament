@@ -259,6 +259,7 @@ set(MATERIAL_SRCS
         src/materials/shadowmap.mat
         src/materials/ssao/bilateralBlur.mat
         src/materials/ssao/bilateralBlurBentNormals.mat
+        src/materials/beautyProcessing/whiten.mat
         src/materials/ssao/mipmapDepth.mat
         src/materials/ssao/sao.mat
         src/materials/ssao/saoBentNormals.mat
@@ -468,6 +469,7 @@ add_custom_command(
         DEPENDS src/materials/ssao/ssaoUtils.fs
         APPEND
 )
+
 
 add_custom_command(
         OUTPUT "${MATERIAL_DIR}/bilateralBlurBentNormals.filamat"

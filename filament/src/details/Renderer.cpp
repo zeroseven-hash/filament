@@ -1341,6 +1341,7 @@ void FRenderer::renderJob(RootArenaScope& rootArenaScope, FView& view) {
             flare = flare_;
         }
 
+
         if (hasColorGrading) {
             if (!colorGradingConfig.asSubpass) {
                 input = ppm.colorGrading(fg, input, xvp,
@@ -1352,6 +1353,10 @@ void FRenderer::renderJob(RootArenaScope& rootArenaScope, FView& view) {
                 svp = xvp;
             }
         }
+        input=ppm.beautyBlur(fg,input,xvp);
+
+ 
+
 
         if (hasFXAA) {
             bool const preserveAlphaChannel =

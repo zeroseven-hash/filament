@@ -315,6 +315,7 @@ static const PostProcessManager::StaticMaterialInfo sMaterialList[] = {
         { "debugShadowCascades",        MATERIAL(DEBUGSHADOWCASCADES) },
         { "resolveDepth",               MATERIAL(RESOLVEDEPTH) },
         { "shadowmap",                  MATERIAL(SHADOWMAP) },
+        { "whiten",                     MATERIAL(WHITEN)}
 };
 
 void PostProcessManager::init() noexcept {
@@ -2380,6 +2381,39 @@ FrameGraphId<FrameGraphTexture> PostProcessManager::customResolveUncompressPass(
                 driver.endRenderPass();
             });
     return detonemapPass->inout;
+}
+FrameGraphId<FrameGraphTexture> PostProcessManager::beautyBlur(FrameGraph& fg, FrameGraphId<FrameGraphTexture> input, const filament::Viewport& vp)
+{
+    struct BeautyBlurData {
+        FrameGraphId<FrameGraphTexture> input;
+        FrameGraphId<FrameGraphTexture> output;
+    };
+    auto const& beautyBlurPass = fg.addPass<BeautyBlurData>("Beauty Blur",
+        [&](FrameGraph::Builder& builder, auto& data) {
+                data.input = builder.sample(input);
+                data.output = builder.createTexture("Beauty Blur output", {
+                        .width = vp.width,
+                        .height = vp.height,
+                        .format = TextureFormat::RGB8
+                });
+                data.output = builder.declareRenderPass(data.output);
+
+            },
+        [=](FrameGraphResources const& resources, auto const& data, DriverApi& driver) {
+                bindPostProcessDescriptorSet(driver);
+                auto const& out = resources.getRenderPassInfo();
+                auto input = resources.getTexture(data.input);
+                auto const& material = getPostProcessMaterial("whiten");
+                FMaterialInstance* const mi =
+                        PostProcessMaterial::getMaterialInstance(mEngine, material);
+                mi->setParameter("beautyinput", input, { /* shader uses texelFetch */ });
+                mi->setParameter("texSize", float2{
+                        float(vp.width),
+                        float(vp.height)
+                });
+                commitAndRenderFullScreenQuad(driver, out, mi);
+            });
+    return beautyBlurPass->output;  
 }
 
 FrameGraphId<FrameGraphTexture> PostProcessManager::colorGrading(FrameGraph& fg,

@@ -200,6 +200,10 @@ public:
             BloomOptions const& bloomOptions) noexcept;
 
         // Color grading, tone mapping, dithering and bloom
+
+    FrameGraphId<FrameGraphTexture> beautyBlur(FrameGraph& fg,FrameGraphId<FrameGraphTexture> input,const Viewport& vp);
+
+
     FrameGraphId<FrameGraphTexture> colorGrading(FrameGraph& fg,
             FrameGraphId<FrameGraphTexture> input, Viewport const& vp,
             FrameGraphId<FrameGraphTexture> bloom,
